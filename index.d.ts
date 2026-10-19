@@ -14,13 +14,24 @@ export type MercuriusFederationOptions = Omit<MercuriusOptions, 'schema'> & {
   schema: string | DocumentNode | Array<DocumentNode>
 }
 
+/**
+ * Fastify plugin registering `mercurius` with a federated schema: the
+ * `schema` option (SDL string, DocumentNode or DocumentNodes) is passed
+ * through `buildFederationSchema`, and `schemaTransforms` are wrapped with
+ * `federationSchemaTransformer`.
+ */
 export declare const mercuriusFederationPlugin: (
   instance: FastifyInstance,
   opts: MercuriusFederationOptions
 ) => void
 
 /**
- * Builds schema with support for federation mode.
+ * Builds an executable schema with federation support: `_service`, `_entities`
+ * and `_Entity`, plus the federation directives. A schema that links the
+ * federation specification (`extend schema @link(url: "https://specs.apollo.dev/federation/v2.x")`)
+ * is built as a Federation 2 subgraph, any other as a Federation 1 subgraph.
+ * With `isGateway` the gateway-side variant is built instead (no root
+ * federation fields, federation directives and `@external` fields removed).
  */
 export declare const buildFederationSchema: (
   schema: string | DocumentNode | Array<DocumentNode>,
@@ -71,13 +82,19 @@ export interface UpgradeOptions {
 
 /**
  * Upgrades a Federation 1 subgraph SDL to Federation 2: adds the federation
- * `@link`, turns `extend type X @key` / `type X @extends` into plain
- * definitions. An SDL that already links the federation spec is returned as is.
+ * `@link` (importing `@key` and every federation directive in use) and turns
+ * `extend type X @key` / `type X @extends` into plain definitions, keeping
+ * `@external`, `@requires` and `@provides`. Root type extensions are left as
+ * they are. An SDL that already links the federation spec is returned as is.
+ * Comments are lost; descriptions and custom directives are kept.
  */
 export declare const upgradeSubgraphSdl: (sdl: string, opts?: UpgradeOptions) => string
 
 /**
- * Upgrades a set of Federation 1 subgraph SDLs together, additionally marking
- * `@shareable` the value types and entity fields defined in several subgraphs.
+ * Upgrades a set of Federation 1 subgraph SDLs together (keyed by subgraph
+ * name). Beyond `upgradeSubgraphSdl`, marks `@shareable` what Federation 1
+ * allowed implicitly: object types without `@key` defined in several
+ * subgraphs, and non-external, non-key fields of entities defined in several
+ * subgraphs. SDLs that already link the federation spec are returned as is.
  */
 export declare const upgradeSubgraphSdls: (sdls: Record<string, string>, opts?: UpgradeOptions) => Record<string, string>
