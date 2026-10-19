@@ -3,7 +3,7 @@ import Fastify from 'fastify'
 import gql from 'graphql-tag'
 import { GraphQLSchema } from 'graphql/index.js'
 
-import { buildFederationSchema, mercuriusFederationPlugin, parseFederationLink } from '../../index.js'
+import { buildFederationSchema, mercuriusFederationPlugin, parseFederationLink, upgradeSubgraphSdl, upgradeSubgraphSdls } from '../../index.js'
 import type { FederationLink } from '../../index.js'
 
 const schema = `
@@ -47,3 +47,7 @@ expectError(() => {
 })
 
 expectType<FederationLink | null>(parseFederationLink(gql(schema)))
+
+expectType<string>(upgradeSubgraphSdl(schema))
+expectType<string>(upgradeSubgraphSdl(schema, { version: '2.3' }))
+expectType<Record<string, string>>(upgradeSubgraphSdls({ a: schema, b: schema2 }))

@@ -63,3 +63,21 @@ export interface FederationLink {
 export declare const parseFederationLink: (
   document: DocumentNode
 ) => FederationLink | null
+
+export interface UpgradeOptions {
+  /** federation specification version to link, e.g. `'2.3'` (default) */
+  version?: string
+}
+
+/**
+ * Upgrades a Federation 1 subgraph SDL to Federation 2: adds the federation
+ * `@link`, turns `extend type X @key` / `type X @extends` into plain
+ * definitions. An SDL that already links the federation spec is returned as is.
+ */
+export declare const upgradeSubgraphSdl: (sdl: string, opts?: UpgradeOptions) => string
+
+/**
+ * Upgrades a set of Federation 1 subgraph SDLs together, additionally marking
+ * `@shareable` the value types and entity fields defined in several subgraphs.
+ */
+export declare const upgradeSubgraphSdls: (sdls: Record<string, string>, opts?: UpgradeOptions) => Record<string, string>

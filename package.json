@@ -7,8 +7,12 @@
   "files": [
     "index.js",
     "index.d.ts",
-    "lib"
+    "lib",
+    "bin"
   ],
+  "bin": {
+    "mercurius-federation-upgrade": "bin/upgrade.js"
+  },
   "scripts": {
     "lint": "npm run lint:standard && npm run lint:typescript",
     "lint:fix": "standard --fix",
