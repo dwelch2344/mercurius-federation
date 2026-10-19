@@ -3,7 +3,8 @@ import Fastify from 'fastify'
 import gql from 'graphql-tag'
 import { GraphQLSchema } from 'graphql/index.js'
 
-import { buildFederationSchema, mercuriusFederationPlugin } from '../../index.js'
+import { buildFederationSchema, mercuriusFederationPlugin, parseFederationLink } from '../../index.js'
+import type { FederationLink } from '../../index.js'
 
 const schema = `
     extend type Query {
@@ -44,3 +45,5 @@ expectError(() => {
     graphiql: true
   })
 })
+
+expectType<FederationLink | null>(parseFederationLink(gql(schema)))

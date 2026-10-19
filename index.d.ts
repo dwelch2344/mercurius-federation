@@ -2,6 +2,7 @@ import { GraphQLSchema } from 'graphql'
 import { FastifyInstance } from 'fastify'
 import { MercuriusOptions } from 'mercurius'
 import {
+  DirectiveNode,
   DocumentNode
 } from 'graphql/language/ast';
 
@@ -37,3 +38,28 @@ export type SchemaTransformer = (schema: GraphQLSchema) => GraphQLSchema
 export declare const federationSchemaTransformer: (
   transformers: SchemaTransformer[]
 ) => SchemaTransformer
+
+/**
+ * The federation specification a Federation 2 subgraph links to.
+ * `imports` maps canonical names (`@key`, `FieldSet`) to the names used in
+ * the subgraph (the same name, or the `as` alias). Elements that are not
+ * imported are available as `<namespace>__<name>`.
+ */
+export interface FederationLink {
+  url: string
+  version: { major: number, minor: number }
+  imports: Map<string, string>
+  namespace: string
+  node: DirectiveNode
+}
+
+/**
+ * Finds the `@link` to the federation specification on a subgraph document.
+ * Returns `null` for a Federation 1 subgraph (no such `@link`).
+ * Throws `MER_ERR_GQL_FEDERATION_UNSUPPORTED_VERSION`,
+ * `MER_ERR_GQL_FEDERATION_UNKNOWN_IMPORT` or
+ * `MER_ERR_GQL_FEDERATION_MULTIPLE_LINKS`.
+ */
+export declare const parseFederationLink: (
+  document: DocumentNode
+) => FederationLink | null
